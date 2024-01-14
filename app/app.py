@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from PIL import Image
+from pydantic import BaseModel
+import base64
 from sentence_transformers import SentenceTransformer
 import requests
 from io import BytesIO
@@ -20,3 +22,15 @@ async def encode_image(url: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing image: {e}")
 
+class ImageData(BaseModel):
+    file: str
+
+@app.post("/encode-base64/")
+async def encode_image_base64(image_data: ImageData):
+    try:
+        image_data = BytesIO(base64.b64decode(image_data.file))
+        img = Image.open(image_data)
+        img_emb = model.encode(img)
+        return {"embedding": img_emb.tolist()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error decoding and processing image: {e}")

@@ -7,13 +7,11 @@ RUN pip install poetry && \
     poetry install --no-dev --no-interaction --no-ansi
 
 COPY load-model.py /app/
-RUN python load-model.py
-
-RUN chown -R unit:unit /app 
+ARG RUN_LOAD_MODEL=false
+RUN if [ "$RUN_LOAD_MODEL" = "true" ]; then python load-model.py; fi
 
 COPY config/nginx-config.json /docker-entrypoint.d/
 
-ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 COPY ./app/ /app/
