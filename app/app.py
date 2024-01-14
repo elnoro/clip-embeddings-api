@@ -2,12 +2,13 @@ from fastapi import FastAPI, HTTPException
 from PIL import Image
 from pydantic import BaseModel
 import base64
+import os
 from sentence_transformers import SentenceTransformer
 import requests
 from io import BytesIO
 
 app = FastAPI()
-model = SentenceTransformer('clip-ViT-B-32')
+model = SentenceTransformer(os.getenv('MODEL_NAME'))
 
 @app.post("/encode/")
 async def encode_image(url: str):

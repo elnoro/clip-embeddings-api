@@ -6,6 +6,7 @@ RUN pip install poetry && \
     poetry config virtualenvs.create false && \
     poetry install --no-dev --no-interaction --no-ansi
 
+ENV MODEL_NAME="clip-ViT-B-32"
 COPY load-model.py /app/
 ARG RUN_LOAD_MODEL=false
 RUN if [ "$RUN_LOAD_MODEL" = "true" ]; then python load-model.py; fi
