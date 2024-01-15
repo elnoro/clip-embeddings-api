@@ -8,7 +8,8 @@ import requests
 from io import BytesIO
 
 app = FastAPI()
-model = SentenceTransformer(os.getenv('MODEL_NAME'))
+model = SentenceTransformer(os.getenv("MODEL_NAME"))
+
 
 @app.post("/encode/")
 async def encode_image(url: str):
@@ -23,8 +24,10 @@ async def encode_image(url: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing image: {e}")
 
+
 class ImageData(BaseModel):
     file: str
+
 
 @app.post("/encode-base64/")
 async def encode_image_base64(image_data: ImageData):
@@ -34,4 +37,19 @@ async def encode_image_base64(image_data: ImageData):
         img_emb = model.encode(img)
         return {"embedding": img_emb.tolist()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error decoding and processing image: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error decoding and processing image: {e}"
+        )
+
+
+class QueryData(BaseModel):
+    query: str
+
+
+@app.post("/encode-query/")
+async def encode_query(query: QueryData):
+    try:
+        query_emb = model.encode(query.query)
+        return {"embedding": query_emb.tolist()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing query: {e}")
