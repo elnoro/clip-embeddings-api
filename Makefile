@@ -6,3 +6,9 @@ publish/slim: build/slim
 
 build/preloaded:
 	docker build . --build-arg RUN_LOAD_MODEL=true -t ghcr.io/elnoro/clip-embeddings-api:v0-preloaded
+
+test:
+	PYTHONPATH="${PYTHONPATH}:/app" pytest
+
+testC:
+	docker compose exec app make test
