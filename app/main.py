@@ -35,3 +35,14 @@ async def encode_image_base64(image_data: ImageData):
         return {"embedding": img_emb.tolist()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error decoding and processing image: {e}")
+
+class QueryData(BaseModel):
+    query: str
+
+@app.post("/encode-query/")
+async def encode_query(query: QueryData):
+    try:
+        query_emb = model.encode(query.query)
+        return {"embedding": query_emb.tolist()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing query: {e}")

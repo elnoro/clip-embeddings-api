@@ -22,3 +22,11 @@ async def test_encode_image_base64(test_client):
     assert response.status_code == 200
     assert "embedding" in response.json()
     assert len(response.json()["embedding"]) == 512
+
+@pytest.mark.asyncio
+async def test_encode_query(test_client):
+    response = await test_client.post("/encode-query/", json={"query": "test query"})
+    
+    assert response.status_code == 200
+    assert "embedding" in response.json()
+    assert len(response.json()["embedding"]) == 512
