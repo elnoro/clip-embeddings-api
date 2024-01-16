@@ -16,7 +16,10 @@ model = SentenceTransformer(os.getenv("MODEL_NAME"))
 
 security = HTTPBearer(auto_error=False)
 
-def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+):
     token = os.getenv("API_TOKEN")
     if token is None or token == "":
         return
@@ -53,7 +56,9 @@ class ImageData(BaseModel):
 
 
 @app.post("/encode-base64/")
-async def encode_image_base64(image_data: ImageData, username: str = Depends(get_current_user)):
+async def encode_image_base64(
+    image_data: ImageData, username: str = Depends(get_current_user)
+):
     try:
         image_data = BytesIO(base64.b64decode(image_data.file))
         img = Image.open(image_data)
