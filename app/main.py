@@ -1,4 +1,7 @@
-from fastapi import FastAPI, HTTPException
+import secrets
+from typing import Annotated
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from PIL import Image
 from pydantic import BaseModel
 import base64
@@ -6,13 +9,31 @@ import os
 from sentence_transformers import SentenceTransformer
 import requests
 from io import BytesIO
+from fastapi import status
 
 app = FastAPI()
 model = SentenceTransformer(os.getenv("MODEL_NAME"))
 
+security = HTTPBearer()
+
+def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
+    token = os.getenv("API_TOKEN")
+    if token is None or credentials is None or credentials.credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
+    is_token_correct = secrets.compare_digest(credentials.credentials, token)
+    if not is_token_correct:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
+    return credentials.credentials
+
 
 @app.post("/encode/")
-async def encode_image(url: str):
+async def encode_image(url: str, username: str = Depends(get_current_user)):
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -30,7 +51,7 @@ class ImageData(BaseModel):
 
 
 @app.post("/encode-base64/")
-async def encode_image_base64(image_data: ImageData):
+async def encode_image_base64(image_data: ImageData, username: str = Depends(get_current_user)):
     try:
         image_data = BytesIO(base64.b64decode(image_data.file))
         img = Image.open(image_data)
@@ -47,7 +68,7 @@ class QueryData(BaseModel):
 
 
 @app.post("/encode-query/")
-async def encode_query(query: QueryData):
+async def encode_query(query: QueryData, username: str = Depends(get_current_user)):
     try:
         query_emb = model.encode(query.query)
         return {"embedding": query_emb.tolist()}

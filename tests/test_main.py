@@ -1,5 +1,6 @@
 import httpx
 import pytest
+import os
 import base64
 from PIL import Image
 from io import BytesIO
@@ -8,7 +9,10 @@ from app.main import app
 
 @pytest.fixture
 def test_client():
-    return httpx.AsyncClient(app=app, base_url="http://test")
+    headers = {
+        "Authorization": "Bearer " + os.getenv("API_TOKEN"),
+    }
+    return httpx.AsyncClient(app=app, base_url="http://test", headers=headers)
 
 
 @pytest.mark.asyncio
