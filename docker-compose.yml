@@ -4,10 +4,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     environment:
       - API_TOKEN=$API_TOKEN
     ports:
       - "8000:8000"
     volumes:
       - .:/app
-    command: [ "uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0" ,"--port", "8000" ]

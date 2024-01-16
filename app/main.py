@@ -1,5 +1,5 @@
 import secrets
-from typing import Annotated
+from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from PIL import Image
@@ -14,11 +14,13 @@ from fastapi import status
 app = FastAPI()
 model = SentenceTransformer(os.getenv("MODEL_NAME"))
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
-def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
+def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
     token = os.getenv("API_TOKEN")
-    if token is None or credentials is None or credentials.credentials is None:
+    if token is None or token == "":
+        return
+    if credentials is None or credentials.credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
