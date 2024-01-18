@@ -8,7 +8,7 @@
         "fastapi":{
             "type":"python 3.11",
             "path":"/app/",
-            "module": "app",
+            "module": "main",
             "callable": "app",
             "user": "root"
         }
